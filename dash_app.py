@@ -9,7 +9,7 @@ import dash_table
 from dash import callback_context
 import json
 
-PAGE_SIZE = 2
+PAGE_SIZE = 1
 
 df = pd.read_json('https://isod.ee.pw.edu.pl/isod-portal/wapi?q=dissertations_offers&orgunit=ISEP&fromrow=10&maxrows=4&active=true&format=json&lang=en&datefrom=23.02.2010', orient="records")
 
@@ -53,19 +53,19 @@ app.layout = html.Div(children=[
     Input('Last', 'n_clicks')
 )
 def update_table(first, prev, next, last):
-    """
-    print('first')
-    if first > 0:
-        global current_page
-        print(current_page)
+    ctx = dash.callback_context
+    btn_name = ctx.triggered[0]['prop_id'].split('.')[0]
+    global current_page
+    if btn_name == 'First' and first > 0:
         current_page = 0
-    if next > 0:
-        global current_page
-        print(current_page)
+    elif btn_name == 'Previous' and prev > 0:
+        if current_page > 0:
+            current_page -= 1
+    elif btn_name == 'Next' and next > 0:
         if current_page*PAGE_SIZE+PAGE_SIZE < len(df):
-            print(current_page)
             current_page += 1
-    """
+    elif btn_name == 'Last' and last > 0:
+        current_page = math.floor(len(df)/PAGE_SIZE) - 1
     return generate_table(df)
 
 
